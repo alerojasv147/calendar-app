@@ -56,6 +56,18 @@
       <paper-item>
         <paper-button raised on-tap="_generate">Generate</paper-button>
       </paper-item>
+    </div>
+
+    <!-- Calendar Section -->
+    <div>
+      <template is="dom-repeat" items="[[months]]">
+        <month-element 
+          year="[[item.year]]"
+          month="[[item.month]]"
+          weeks="[[item.weeks]]"
+          country-code="[[countryCode]]">
+        </month-element>
+      </template>
     </div>    
   </template>
 
@@ -91,8 +103,64 @@
          * Generates the calendar according to the user inputs
          * @private
          */
-        _generate: function() {            
-        }        
+        _generate: function() {
+          var current = moment(this.startDate),
+              end     = moment(this.startDate).add(this.numOfDays, 'days'),
+              months  = [],
+              weeks   = [];
+
+          while ( current.isBefore(end) ) {
+            var key  = current.format("YYYY-MM"),
+                days = [];            
+
+            // Create the necessary weeks
+            for ( var i = current.day(); i < 7; i++ ) {
+              days[i] = {
+                "date": current.format("D"),
+                "type": this._getTypeDay(current)
+              };
+              current.add(1, 'days');
+            }
+            
+            if ( !months[key] ) {
+              var month = {
+                "year"  : current.format("YYYY"),
+                "month" : current.format("MMMM"),
+                "weeks" : []
+              };
+
+              month.weeks.push({
+                "days": days
+              });
+              months[key] = month;
+            } else {
+              months[key].weeks.push({
+                "days": days
+              });
+            }
+          }
+
+          for ( var i in months ) {
+            this.push("months", months[i]);
+          }
+        },
+
+        /**
+         * Determines if the date is a weekday, weekend, holiday or a invalid day
+         * @param {Object} current
+         * @private
+         * @return {String}
+         */
+        _getTypeDay: function(current) {
+            var type = "";
+            if ( current.day() === 6 || current.day() === 0 ) {
+              type = "weekend";
+            } else {
+              type = "weekday";
+            }
+
+            return type;
+        },
       });
   </script>
 </dom-module> 
