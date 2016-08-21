@@ -1,0 +1,27 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+
+<dom-module id="calendar-app">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+    <h2>Hello [[prop1]]</h2>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'calendar-app',
+
+      properties: {
+        prop1: {
+          type: String,
+          value: 'calendar-app',
+        },
+      },
+
+    });
+  </script>
+</dom-module>
