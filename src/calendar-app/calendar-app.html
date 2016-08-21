@@ -109,40 +109,47 @@
               months  = [],
               weeks   = [];
 
-          while ( current.isBefore(end) ) {
-            var key  = current.format("YYYY-MM"),
-                days = [];            
+            this.set("months", []);
 
-            // Create the necessary weeks
-            for ( var i = current.day(); i < 7; i++ ) {
-              days[i] = {
-                "date": current.format("D"),
-                "type": this._getTypeDay(current)
-              };
-              current.add(1, 'days');
+            while ( current.isBefore(end) ) {
+              var key      = current.format("YYYY-MM"),
+                  monthIni = current.get("month"),
+                  days     = [];
+
+              // Create the necessary weeks
+              for ( var i = current.day(); i < 7; i++ ) {
+                if ( monthIni === current.get("month") ) {
+                  days[i] = {
+                    "date": current.format("D"),
+                    "type": this._getTypeDay(current)
+                  };
+                  current.add(1, 'days');
+                } else {
+                  break;
+                }
+              }
+
+              if ( !months[key] ) {
+                var month = {
+                  "year"  : current.format("YYYY"),
+                  "month" : current.format("MMMM"),
+                  "weeks" : []
+                };
+
+                month.weeks.push({
+                  "days": this._checkCompleteWeek(days)
+                });
+                months[key] = month;
+              } else {
+                months[key].weeks.push({
+                  "days": this._checkCompleteWeek(days)
+                });
+              }
             }
-            
-            if ( !months[key] ) {
-              var month = {
-                "year"  : current.format("YYYY"),
-                "month" : current.format("MMMM"),
-                "weeks" : []
-              };
 
-              month.weeks.push({
-                "days": days
-              });
-              months[key] = month;
-            } else {
-              months[key].weeks.push({
-                "days": days
-              });
+            for ( var i in months ) {
+              this.push("months", months[i]);
             }
-          }
-
-          for ( var i in months ) {
-            this.push("months", months[i]);
-          }
         },
 
         /**
@@ -161,6 +168,22 @@
 
             return type;
         },
+
+        /**
+         * Checks the state of each day and fill with invalid days
+         * @param days
+         * @private
+         */
+        _checkCompleteWeek: function(days) {
+          for ( var i=0; i<7; i++ ) {
+            if ( !days[i] ) {
+              days[i] = {
+                "type" : "invalid"
+              }
+            }
+          }
+          return days;
+        }
       });
   </script>
 </dom-module> 
