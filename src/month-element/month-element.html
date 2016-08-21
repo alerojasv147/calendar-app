@@ -1,0 +1,98 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+
+<link rel="import" href="../week-element/week-element.html">
+
+<dom-module id="month-element">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+
+    <paper-card>
+      <div class="title">[[month]], [[year]]</div>
+      <div class="card-content">
+        <div class="horizontal-layout">
+          <div class="header">S</div>
+          <div class="header">M</div>
+          <div class="header">T</div>
+          <div class="header">W</div>
+          <div class="header">T</div>
+          <div class="header">F</div>
+          <div class="header">S</div>
+        </div>
+        <template is="dom-repeat" items="[[weeks]]">
+          <week-element days="[[item.days]]"></week-element>
+        </template>
+      </div>
+    </paper-card>
+
+    <!-- Web Service Element -->
+    <iron-ajax id="holiday_service"
+      url="https://holidayapi.com/v1/holidays"
+      handle-as="json"
+      on-response="_handleSuccessResponse"
+      on-error="_handleErrorResponse">
+    </iron-ajax>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'month-element',
+
+      properties: {
+        year: {
+          type   : Number,
+          notify : true
+        },
+        month: {
+          type   : Number,
+          notify : true
+        },
+        weeks: {
+          type   : Array,
+          notify : true,
+          value  : []
+        },
+        countryCode: {
+          type   : String,
+          notify : true,
+          value  : ""
+        },
+        holidays: {
+          type   : Array,
+          notify : true,
+          value  : []
+        }
+      },      
+
+      /**
+       * Handle the success response coming from the ajax request
+       * @param {Object} ajaxResponse
+       * @private
+       */
+      _handleSuccessResponse: function(ajaxResponse) {
+        var response = ajaxResponse.detail.response;
+
+        if ( response.status === 200 ) {
+          this.set("holidays", response.holidays);
+          this._setHolidays();
+        }
+      },
+
+      /**
+       * Handle the error response coming from the ajax request
+       * @param {Object} ajaxResponse
+       * @private
+       */
+      _handleErrorResponse: function (ajaxResponse) {
+        var response = ajaxResponse.detail.error;
+      }      
+    });
+  </script>
+</dom-module>
